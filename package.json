@@ -1,5 +1,5 @@
 {
-  "name": "bhp",
+  "name": "bglr-house-price-prediction",
   "version": "1.0.0",
   "description": "",
   "main": "server.js",
