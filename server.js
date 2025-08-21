@@ -10,8 +10,10 @@ app.use(express.static(path.join(__dirname, "public")));
 app.use(express.json());
 
 // Load model + columns
-const model = require("./model.json");
-const columns = JSON.parse(fs.readFileSync("columns.json")).data_columns;
+const model = require(path.join(__dirname, "model.json"));
+const columns = JSON.parse(
+  fs.readFileSync(path.join(__dirname, "columns.json"))
+).data_columns;
 const locations = columns.slice(3); // skip first 3 columns
 
 // Prediction function
