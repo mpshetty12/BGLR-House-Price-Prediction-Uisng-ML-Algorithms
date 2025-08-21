@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>🏠 House Price Prediction</title>
+  <style>
+    :root {
+      --primary: #2563eb;
+      --primary-light: #3b82f6;
+      --bg: #f9fafb;
+      --card-bg: #ffffff;
+      --text-dark: #111827;
+      --text-light: #6b7280;
+      --radius: 12px;
+    }
+
+    body {
+      margin: 0;
+      font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+      background: var(--bg);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      padding: 20px;
+    }
+
+    .container {
+      background: var(--card-bg);
+      padding: 30px;
+      border-radius: var(--radius);
+      box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+      width: 100%;
+      max-width: 450px;
+      animation: fadeIn 0.6s ease-in-out;
+    }
+
+    h1 {
+      display: flex;
+      align-items: center;
+      font-size: 1.8em;
+      font-weight: bold;
+      margin-bottom: 20px;
+      color: var(--text-dark);
+    }
+
+    h1 span {
+      margin-right: 10px;
+    }
+
+    form {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 15px;
+    }
+
+    input, select, button {
+      padding: 12px;
+      font-size: 1em;
+      border-radius: var(--radius);
+      border: 1px solid #e5e7eb;
+      transition: 0.2s ease;
+    }
+
+    input:focus, select:focus {
+      border-color: var(--primary);
+      outline: none;
+      box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.2);
+    }
+
+    button {
+      background: var(--primary);
+      color: white;
+      font-weight: bold;
+      border: none;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background: var(--primary-light);
+    }
+
+    #result {
+      margin-top: 20px;
+      font-size: 1.3em;
+      font-weight: bold;
+      text-align: center;
+      color: var(--primary);
+      min-height: 28px;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(15px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    @media (max-width: 500px) {
+      h1 {
+        font-size: 1.5em;
+      }
+      .container {
+        padding: 20px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1><span>🏠</span> House Price Prediction</h1>
+
+    <form id="predictForm">
+      <input type="number" name="sqft" placeholder="Enter Sqft" required />
+      <input type="number" name="bathrooms" placeholder="Bathrooms" required />
+      <input type="number" name="bedrooms" placeholder="Bedrooms" required />
+      <select name="location" id="location" required></select>
+      <button type="submit">🔮 Predict Price</button>
+    </form>
+
+    <div id="result"></div>
+  </div>
+
+  <script>
+    // Load locations dynamically
+    document.addEventListener('DOMContentLoaded', () => {
+      fetch('/locations')
+        .then(res => res.json())
+        .then(data => {
+          const select = document.getElementById('location');
+          select.innerHTML = "";
+          data.locations.forEach(loc => {
+            const opt = document.createElement('option');
+            opt.value = loc;
+            opt.textContent = loc;
+            select.appendChild(opt);
+          });
+        })
+        .catch(err => {
+          console.error('Error loading locations:', err);
+        });
+    });
+
+    // Handle prediction form
+    document.getElementById('predictForm').addEventListener('submit', e => {
+      e.preventDefault();
+      const form = new FormData(e.target);
+      const body = Object.fromEntries(form);
+
+      fetch('/predict-price', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(body)
+      })
+      .then(res => res.json())
+      .then(data => {
+        const resultEl = document.getElementById('result');
+        if (data.price !== undefined) {
+          resultEl.textContent = `💰 Estimated Price: ₹${data.price.toFixed(2)}`;
+        } else {
+          resultEl.textContent = "⚠️ Prediction failed.";
+        }
+      })
+      .catch(err => {
+        console.error('Error predicting price:', err);
+        document.getElementById('result').textContent = "⚠️ Error predicting price.";
+      });
+    });
+  </script>
+</body>
+</html>
