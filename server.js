@@ -3,7 +3,6 @@ const fs = require("fs");
 const path = require("path");
 
 const app = express();
-const PORT = process.env.PORT || 3000;
 
 // Serve static frontend
 app.use(express.static(path.join(__dirname, "public")));
@@ -34,7 +33,7 @@ function predictPrice(sqft, bathrooms, bedrooms, location) {
     x.reduce((sum, val, i) => sum + val * model.coef[i], 0) +
     model.intercept;
 
-  return price;
+  return Math.round(price);
 }
 
 // GET locations for dropdown
@@ -63,7 +62,5 @@ app.post("/predict-price", (req, res) => {
   }
 });
 
-// Start server
-app.listen(PORT, () => {
-  console.log(`✅ Server running at http://localhost:${PORT}`);
-});
+// ✅ Export for Vercel (do NOT call app.listen)
+module.exports = app;
